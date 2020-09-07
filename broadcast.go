@@ -17,19 +17,19 @@ type Broadcast interface {
 	Rooms(connection Conn) []string // Gives list of all the rooms if no connection given, else list of all the rooms the connection joined
 }
 
-// broadcast gives Join, Leave & BroadcastTO server API support to socket.io along with room management
-type broadcast struct {
+// memBroadcast gives Join, Leave & BroadcastTO server API support to socket.io along with room management
+type memBroadcast struct {
 	rooms map[string]map[string]Conn // map of rooms where each room contains a map of connection id to connections in that room
 	lock  sync.RWMutex               // access lock for rooms
 }
 
-// NewBroadcast creates a new broadcast adapter
-func NewBroadcast() *broadcast {
-	return &broadcast{rooms: make(map[string]map[string]Conn)}
+// NewMemBroadcast creates a new memBroadcast adapter
+func NewMemBroadcast() *memBroadcast {
+	return &memBroadcast{rooms: make(map[string]map[string]Conn)}
 }
 
-// Join joins the given connection to the broadcast room
-func (broadcast *broadcast) Join(room string, connection Conn) {
+// Join joins the given connection to the memBroadcast room
+func (broadcast *memBroadcast) Join(room string, connection Conn) {
 	// get write lock
 	broadcast.lock.Lock()
 	defer broadcast.lock.Unlock()
@@ -44,7 +44,7 @@ func (broadcast *broadcast) Join(room string, connection Conn) {
 }
 
 // Leave leaves the given connection from given room (if exist)
-func (broadcast *broadcast) Leave(room string, connection Conn) {
+func (broadcast *memBroadcast) Leave(room string, connection Conn) {
 	// get write lock
 	broadcast.lock.Lock()
 	defer broadcast.lock.Unlock()
@@ -62,7 +62,7 @@ func (broadcast *broadcast) Leave(room string, connection Conn) {
 }
 
 // LeaveAll leaves the given connection from all rooms
-func (broadcast *broadcast) LeaveAll(connection Conn) {
+func (broadcast *memBroadcast) LeaveAll(connection Conn) {
 	// get write lock
 	broadcast.lock.Lock()
 	defer broadcast.lock.Unlock()
@@ -80,7 +80,7 @@ func (broadcast *broadcast) LeaveAll(connection Conn) {
 }
 
 // Clear clears the room
-func (broadcast *broadcast) Clear(room string) {
+func (broadcast *memBroadcast) Clear(room string) {
 	// get write lock
 	broadcast.lock.Lock()
 	defer broadcast.lock.Unlock()
@@ -90,7 +90,7 @@ func (broadcast *broadcast) Clear(room string) {
 }
 
 // Send sends given event & args to all the connections in the specified room
-func (broadcast *broadcast) Send(room, event string, args ...interface{}) {
+func (broadcast *memBroadcast) Send(room, event string, args ...interface{}) {
 	// get a read lock
 	broadcast.lock.RLock()
 	defer broadcast.lock.RUnlock()
@@ -103,7 +103,7 @@ func (broadcast *broadcast) Send(room, event string, args ...interface{}) {
 }
 
 // SendAll sends given event & args to all the connections to all the rooms
-func (broadcast *broadcast) SendAll(event string, args ...interface{}) {
+func (broadcast *memBroadcast) SendAll(event string, args ...interface{}) {
 	// get a read lock
 	broadcast.lock.RLock()
 	defer broadcast.lock.RUnlock()
@@ -119,7 +119,7 @@ func (broadcast *broadcast) SendAll(event string, args ...interface{}) {
 }
 
 // SendForEach sends data returned by DataFunc, if the return is 'ok' (second return)
-func (broadcast *broadcast) ForEach(room string, f EachFunc) {
+func (broadcast *memBroadcast) ForEach(room string, f EachFunc) {
 	// get a read lock
 	broadcast.lock.RLock()
 	defer broadcast.lock.RUnlock()
@@ -135,17 +135,17 @@ func (broadcast *broadcast) ForEach(room string, f EachFunc) {
 }
 
 // Len gives number of connections in the room
-func (broadcast *broadcast) Len(room string) int {
+func (broadcast *memBroadcast) Len(room string) int {
 	broadcast.lock.RLock()
 	defer broadcast.lock.RUnlock()
 
 	return len(broadcast.rooms[room])
 }
 
-// Rooms gives the list of all the rooms available for broadcast in case of
+// Rooms gives the list of all the rooms available for memBroadcast in case of
 // no connection is given, in case of a connection is given, it gives
 // list of all the rooms the connection is joined to
-func (broadcast *broadcast) Rooms(connection Conn) []string {
+func (broadcast *memBroadcast) Rooms(connection Conn) []string {
 	broadcast.lock.RLock()
 	defer broadcast.lock.RUnlock()
 

@@ -13,7 +13,7 @@ import (
 func TestNamespaceHandler(t *testing.T) {
 	should := assert.New(t)
 	must := require.New(t)
-	h := newHandler()
+	h := newDefaultHandler()
 
 	onConnectCalled := false
 	h.OnConnect(func(c Conn) error {
@@ -96,7 +96,7 @@ func TestNamespaceHandlerEvent(t *testing.T) {
 			should := assert.New(t)
 			must := require.New(t)
 
-			h := newHandler()
+			h := newDefaultHandler()
 			for i, e := range test.events {
 				h.OnEvent(e, test.handlers[i])
 			}

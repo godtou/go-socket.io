@@ -17,10 +17,17 @@ type namespaceHandler struct {
 	broadcast    Broadcast
 }
 
-func newHandler() *namespaceHandler {
+func newDefaultHandler() *namespaceHandler {
 	return &namespaceHandler{
 		events:    make(map[string]*funcHandler),
-		broadcast: NewBroadcast(),
+		broadcast: NewMemBroadcast(),
+	}
+}
+
+func NewHandler(b Broadcast) *namespaceHandler {
+	return &namespaceHandler{
+		events:    make(map[string]*funcHandler),
+		broadcast: b,
 	}
 }
 
