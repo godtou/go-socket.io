@@ -20,7 +20,9 @@ func NewServer(c *engineio.Options) (*Server, error) {
 		return nil, err
 	}
 	return &Server{
-		handlers: make(map[string]*namespaceHandler),
+		handlers: map[string]*namespaceHandler {
+			"": newDefaultHandler(),
+		},
 		eio:      eio,
 	}, nil
 }
